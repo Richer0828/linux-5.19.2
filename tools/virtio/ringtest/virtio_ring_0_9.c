@@ -135,12 +135,14 @@ int add_inbuf(unsigned len, void *buf, void *datap)
 	avail = guest.avail_idx++;
 	ring.avail->ring[avail & (ring_size - 1)].id =
 		(head | (avail & ~(ring_size - 1))) ^ 0x8000;
+	ring.avail->ring[avail & (ring_size - 1)].cid = current->pid;
 #else
 #ifndef INORDER
 	/* Barrier A (for pairing) */
 	smp_release();
 	avail = (ring_size - 1) & (guest.avail_idx++);
 	ring.avail->ring[avail].id = head;
+	ring.avail->ring[avail].cid = current->pid;
 #endif
 	/* Barrier A (for pairing) */
 	smp_release();

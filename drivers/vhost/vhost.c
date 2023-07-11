@@ -47,7 +47,7 @@ enum {
 };
 
 #define vhost_used_event(vq) ((__virtio16 __user *)&vq->avail->ring[vq->num].id)
-#define vhost_avail_event(vq) ((__virtio16 __user *)&vq->used->ring[vq->num].id)
+#define vhost_avail_event(vq) ((__virtio16 __user *)&vq->used->ring[vq->num])
 
 #ifdef CONFIG_VHOST_CROSS_ENDIAN_LEGACY
 static void vhost_disable_cross_endian(struct vhost_virtqueue *vq)
