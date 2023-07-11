@@ -133,14 +133,14 @@ int add_inbuf(unsigned len, void *buf, void *datap)
 	/* Barrier A (for pairing) */
 	smp_release();
 	avail = guest.avail_idx++;
-	ring.avail->ring[avail & (ring_size - 1)] =
+	ring.avail->ring[avail & (ring_size - 1)].id =
 		(head | (avail & ~(ring_size - 1))) ^ 0x8000;
 #else
 #ifndef INORDER
 	/* Barrier A (for pairing) */
 	smp_release();
 	avail = (ring_size - 1) & (guest.avail_idx++);
-	ring.avail->ring[avail] = head;
+	ring.avail->ring[avail].id = head;
 #endif
 	/* Barrier A (for pairing) */
 	smp_release();
@@ -259,7 +259,7 @@ bool avail_empty()
 {
 	unsigned head = host.used_idx;
 #ifdef RING_POLL
-	unsigned index = ring.avail->ring[head & (ring_size - 1)];
+	unsigned index = ring.avail->ring[head & (ring_size - 1)].id;
 
 	return ((index ^ head ^ 0x8000) & ~(ring_size - 1));
 #else
@@ -274,7 +274,7 @@ bool use_buf(unsigned *lenp, void **bufp)
 	unsigned head;
 
 #ifdef RING_POLL
-	head = ring.avail->ring[used_idx & (ring_size - 1)];
+	head = ring.avail->ring[used_idx & (ring_size - 1)].id;
 	if ((used_idx ^ head ^ 0x8000) & ~(ring_size - 1))
 		return false;
 	/* Barrier A (for pairing) */
@@ -293,7 +293,7 @@ bool use_buf(unsigned *lenp, void **bufp)
 #ifdef INORDER
 	head = used_idx;
 #else
-	head = ring.avail->ring[used_idx];
+	head = ring.avail->ring[used_idx].id;
 #endif
 	desc = &ring.desc[head];
 #endif

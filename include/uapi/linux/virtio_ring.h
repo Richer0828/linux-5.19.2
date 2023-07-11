@@ -105,10 +105,20 @@ struct vring_desc {
 	__virtio16 next;
 };
 
+struct vring_avail_elem {
+	/* Index of start of used descriptor chain. */
+	__virtio16 id;
+	/* Container id which uses the driver */
+	__virtio16 cid;
+};
+
+typedef struct vring_avail_elem __attribute__((aligned(VRING_AVAIL_ALIGN_SIZE))) 
+	vring_avail_elem_t;
+
 struct vring_avail {
 	__virtio16 flags;
 	__virtio16 idx;
-	__virtio16 ring[];
+	vring_avail_elem_t ring[];
 };
 
 /* u32 is used here for ids for padding reasons. */
@@ -187,7 +197,7 @@ struct vring {
  */
 /* We publish the used event index at the end of the available ring, and vice
  * versa. They are at the end for backwards compatibility. */
-#define vring_used_event(vr) ((vr)->avail->ring[(vr)->num])
+#define vring_used_event(vr) ((vr)->avail->ring[(vr)->num].id)
 #define vring_avail_event(vr) (*(__virtio16 *)&(vr)->used->ring[(vr)->num])
 
 static inline void vring_init(struct vring *vr, unsigned int num, void *p,
@@ -196,14 +206,14 @@ static inline void vring_init(struct vring *vr, unsigned int num, void *p,
 	vr->num = num;
 	vr->desc = p;
 	vr->avail = (struct vring_avail *)((char *)p + num * sizeof(struct vring_desc));
-	vr->used = (void *)(((uintptr_t)&vr->avail->ring[num] + sizeof(__virtio16)
-		+ align-1) & ~(align - 1));
+	vr->used = (void *)(((uintptr_t)&vr->avail->ring[num] 
+		+ sizeof(struct vring_avail_elem) + align-1) & ~(align - 1));
 }
 
 static inline unsigned vring_size(unsigned int num, unsigned long align)
 {
-	return ((sizeof(struct vring_desc) * num + sizeof(__virtio16) * (3 + num)
-		 + align - 1) & ~(align - 1))
+	return ((sizeof(struct vring_desc) * num + sizeof(__virtio16) * 3 
+		+ sizeof(struct vring_avail_elem) * num + align - 1) & ~(align - 1))
 		+ sizeof(__virtio16) * 3 + sizeof(struct vring_used_elem) * num;
 }
 

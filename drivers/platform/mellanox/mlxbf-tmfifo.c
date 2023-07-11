@@ -298,7 +298,7 @@ mlxbf_tmfifo_get_next_desc(struct mlxbf_tmfifo_vring *vring)
 	virtio_rmb(false);
 
 	idx = vring->next_avail % vr->num;
-	head = virtio16_to_cpu(vdev, vr->avail->ring[idx]);
+	head = virtio16_to_cpu(vdev, vr->avail->ring[idx].id);
 	if (WARN_ON(head >= vr->num))
 		return NULL;
 

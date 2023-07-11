@@ -58,10 +58,10 @@ static inline int __vringh_get_head(const struct vringh *vrh,
 
 	i = *last_avail_idx & (vrh->vring.num - 1);
 
-	err = getu16(vrh, &head, &vrh->vring.avail->ring[i]);
+	err = getu16(vrh, &head, &vrh->vring.avail->ring[i].id);
 	if (err) {
 		vringh_bad("Failed to read head: idx %d address %p",
-			   *last_avail_idx, &vrh->vring.avail->ring[i]);
+			   *last_avail_idx, &vrh->vring.avail->ring[i].id);
 		return err;
 	}
 

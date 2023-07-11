@@ -46,8 +46,8 @@ enum {
 	VHOST_MEMORY_F_LOG = 0x1,
 };
 
-#define vhost_used_event(vq) ((__virtio16 __user *)&vq->avail->ring[vq->num])
-#define vhost_avail_event(vq) ((__virtio16 __user *)&vq->used->ring[vq->num])
+#define vhost_used_event(vq) ((__virtio16 __user *)&vq->avail->ring[vq->num].id)
+#define vhost_avail_event(vq) ((__virtio16 __user *)&vq->used->ring[vq->num].id)
 
 #ifdef CONFIG_VHOST_CROSS_ENDIAN_LEGACY
 static void vhost_disable_cross_endian(struct vhost_virtqueue *vq)
@@ -1017,7 +1017,7 @@ static inline int vhost_get_avail_head(struct vhost_virtqueue *vq,
 				       __virtio16 *head, int idx)
 {
 	return vhost_get_avail(vq, *head,
-			       &vq->avail->ring[idx & (vq->num - 1)]);
+			       &vq->avail->ring[idx & (vq->num - 1)].id);
 }
 
 static inline int vhost_get_avail_flags(struct vhost_virtqueue *vq,
@@ -2254,7 +2254,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
 	if (unlikely(vhost_get_avail_head(vq, &ring_head, last_avail_idx))) {
 		vq_err(vq, "Failed to read head: idx %d address %p\n",
 		       last_avail_idx,
-		       &vq->avail->ring[last_avail_idx % vq->num]);
+		       &vq->avail->ring[last_avail_idx % vq->num].id);
 		return -EFAULT;
 	}
 

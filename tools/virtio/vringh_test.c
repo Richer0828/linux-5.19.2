@@ -125,7 +125,7 @@ static inline int vringh_get_head(struct vringh *vrh, u16 *head)
 
 	i = vrh->last_avail_idx & (vrh->vring.num - 1);
 
-	err = get_user(*head, &vrh->vring.avail->ring[i]);
+	err = get_user(*head, &vrh->vring.avail->ring[i].id);
 	if (err)
 		return err;
 
