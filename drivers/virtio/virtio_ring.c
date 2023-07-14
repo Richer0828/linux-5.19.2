@@ -606,6 +606,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
 	 * do sync). */
 	avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
 	vq->split.vring.avail->ring[avail].id = cpu_to_virtio16(_vq->vdev, head);
+	vq->split.vring.avail->ring[avail].cid = cpu_to_virtio16(_vq->vdev, current->pid);
 
 	/* Descriptors and available array need to be set before we expose the
 	 * new available array entries. */
